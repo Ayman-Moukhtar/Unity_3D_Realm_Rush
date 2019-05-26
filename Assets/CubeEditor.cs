@@ -2,13 +2,16 @@
 
 [ExecuteInEditMode]
 [SelectionBase]
+[RequireComponent(typeof(Waypoint))]
 public class CubeEditor : MonoBehaviour
 {
-    [Range(1f, 10f)]
-    [SerializeField]
-    private float _dragOffset = 10f;
-
     private TextMesh _textMesh;
+    private Waypoint _waypoint;
+
+    private void Awake()
+    {
+        _waypoint = GetComponent<Waypoint>();
+    }
 
     private void Start()
     {
@@ -18,17 +21,19 @@ public class CubeEditor : MonoBehaviour
 
     private void Update()
     {
+        var positionInGrid = _waypoint.GetPositionInGrid();
         transform.position = new Vector3(
-            Mathf.RoundToInt(transform.position.x / _dragOffset) * _dragOffset,
+            positionInGrid.x,
             0f,
-            Mathf.RoundToInt(transform.position.z / _dragOffset) * _dragOffset
+            positionInGrid.y
             );
         AdjustNameAndLabelText();
     }
 
     private void AdjustNameAndLabelText()
     {
-        var text = $"{transform.position.x / _dragOffset},{transform.position.z / _dragOffset}";
+        var positionInGrid = _waypoint.GetPositionInGrid();
+        var text = $"{positionInGrid.x / _waypoint.GridSize},{positionInGrid.y / _waypoint.GridSize}";
         _textMesh.text = text;
         gameObject.name = text;
     }
