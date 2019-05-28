@@ -10,9 +10,14 @@ public class Waypoint : MonoBehaviour
     public Vector2Int GetPositionInGrid()
     {
         return new Vector2Int(
-            Mathf.RoundToInt(transform.position.x / _gridSize) * _gridSize,
-            Mathf.RoundToInt(transform.position.z / _gridSize) * _gridSize
+            Mathf.RoundToInt(transform.position.x / _gridSize),
+            Mathf.RoundToInt(transform.position.z / _gridSize)
             );
+    }
+
+    public void SetTopColor(Color color)
+    {
+        transform.Find("Top").GetComponent<MeshRenderer>().material.color = color;
     }
     #endregion
 }

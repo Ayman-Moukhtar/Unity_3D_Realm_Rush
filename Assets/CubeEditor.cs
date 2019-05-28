@@ -21,19 +21,24 @@ public class CubeEditor : MonoBehaviour
 
     private void Update()
     {
+        SnapInPosition();
+        AdjustNameAndLabelText();
+    }
+
+    private void SnapInPosition()
+    {
         var positionInGrid = _waypoint.GetPositionInGrid();
         transform.position = new Vector3(
-            positionInGrid.x,
+            positionInGrid.x * _waypoint.GridSize,
             0f,
-            positionInGrid.y
+            positionInGrid.y * _waypoint.GridSize
             );
-        AdjustNameAndLabelText();
     }
 
     private void AdjustNameAndLabelText()
     {
         var positionInGrid = _waypoint.GetPositionInGrid();
-        var text = $"{positionInGrid.x / _waypoint.GridSize},{positionInGrid.y / _waypoint.GridSize}";
+        var text = $"{positionInGrid.x},{positionInGrid.y}";
         _textMesh.text = text;
         gameObject.name = text;
     }
