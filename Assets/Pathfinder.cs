@@ -17,17 +17,16 @@ public class Pathfinder : MonoBehaviour
         Vector2Int.left
     };
 
-    void Start()
+    private void Start()
     {
-        LoadBlocks();
         ColorStartAndEnd();
-        FindPath();
     }
 
-    private void FindPath()
+    public List<Waypoint> GetPath()
     {
+        LoadBlocks();
         var current = _start;
-        _queue.Enqueue(_start);
+        _queue.Enqueue(current);
         while (_queue.Any())
         {
             current = _queue.Dequeue();
@@ -36,15 +35,12 @@ public class Pathfinder : MonoBehaviour
             // If reached destination
             if (current == _end)
             {
-                current.SetTopColor(Color.red);
                 break;
             }
 
             GetUnExploredNeighbors(current)
                 .ForEach(_ =>
                 {
-                    _.SetTopColor(Color.blue);
-
                     if (!_queue.Contains(_))
                     {
                         _queue.Enqueue(_);
@@ -54,14 +50,10 @@ public class Pathfinder : MonoBehaviour
                 });
         }
 
-        var path = GetPathFromEndPoint(current);
-
-        GameObject.FindGameObjectWithTag("Enemy")
-            .GetComponent<EnemyMovement>()
-            .FollowPath(path);
+        return ConstructPathFromEnd(current);
     }
 
-    private List<Waypoint> GetPathFromEndPoint(Waypoint end)
+    private List<Waypoint> ConstructPathFromEnd(Waypoint end)
     {
         var backTracked = end;
         var path = new List<Waypoint> { backTracked };
