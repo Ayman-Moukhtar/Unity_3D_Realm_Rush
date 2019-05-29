@@ -8,6 +8,7 @@ public class Pathfinder : MonoBehaviour
     private Waypoint _start, _end;
 
     private Dictionary<Vector2Int, Waypoint> _grid = new Dictionary<Vector2Int, Waypoint>();
+    private Queue<Waypoint> _queue = new Queue<Waypoint>();
     private List<Vector2Int> _directions = new List<Vector2Int>
     {
         Vector2Int.up,
@@ -20,32 +21,76 @@ public class Pathfinder : MonoBehaviour
     {
         LoadBlocks();
         ColorStartAndEnd();
+        FindPath();
     }
 
     private void FindPath()
     {
-        var queue = new Queue<Waypoint>(new[] { _start });
-        while (queue.Any())
+        var current = _start;
+        _queue.Enqueue(_start);
+        while (_queue.Any())
         {
-            var current = queue.Dequeue();
-            var neighbors = GetNeighbors(queue.Dequeue());
+            current = _queue.Dequeue();
+            current.IsExplored = true;
+
+            // If reached destination
+            if (current == _end)
+            {
+                current.SetTopColor(Color.red);
+                break;
+            }
+
+            GetUnExploredNeighbors(current)
+                .ForEach(_ =>
+                {
+                    _.SetTopColor(Color.blue);
+
+                    if (!_queue.Contains(_))
+                    {
+                        _queue.Enqueue(_);
+                    }
+
+                    _.LeadingWaypoint = current;
+                });
         }
+
+        var path = GetPathFromEndPoint(current);
+
+        GameObject.FindGameObjectWithTag("Enemy")
+            .GetComponent<EnemyMovement>()
+            .FollowPath(path);
+    }
+
+    private List<Waypoint> GetPathFromEndPoint(Waypoint end)
+    {
+        var backTracked = end;
+        var path = new List<Waypoint> { backTracked };
+
+        while (backTracked.LeadingWaypoint)
+        {
+            path.Insert(0, backTracked.LeadingWaypoint);
+            backTracked = backTracked.LeadingWaypoint;
+        }
+
+        return path;
+    }
+
+    private List<Waypoint> GetUnExploredNeighbors(Waypoint waypoint)
+    {
+        return GetNeighbors(waypoint)
+            .Where(_ => !_.IsExplored)
+            .ToList();
     }
 
     private List<Waypoint> GetNeighbors(Waypoint waypoint)
     {
         var startPosition = waypoint.GetPositionInGrid();
-        var neighbors = new List<Waypoint>();
-        _directions.ForEach(_ =>
-        {
-            var neighborCoordinates = _ + startPosition;
-            if (_grid.ContainsKey(neighborCoordinates))
-            {
-                neighbors.Add(_grid[neighborCoordinates]);
-            }
-        });
-
-        return neighbors;
+        return _directions
+            // Filter in case the neighbor doesn't exist
+            // This will happen if the waypoint is on the edge
+            .Where(_ => _grid.ContainsKey(_ + startPosition))
+            .Select(_ => _grid[_ + startPosition])
+            .ToList();
     }
 
     private void ColorStartAndEnd()
