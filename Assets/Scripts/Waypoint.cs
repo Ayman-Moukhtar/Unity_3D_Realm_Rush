@@ -2,23 +2,24 @@
 
 public class Waypoint : MonoBehaviour
 {
-    private const int _gridSize = 10;
-    public int GridSize => _gridSize;
+    public static int GridBlockSize => 10;
 
-    public bool IsExplored { get; set; } = false;
-    public Waypoint LeadingWaypoint { get; set; }
+    public bool IsBlocked { get; set; }
 
     private void OnMouseOver()
     {
-
+        if (Input.GetMouseButtonDown(0)) // Left Click
+        {
+            IsBlocked = !IsBlocked;
+        }
     }
 
     #region Public Methods
     public Vector2Int GetPositionInGrid()
     {
         return new Vector2Int(
-            Mathf.RoundToInt(transform.position.x / _gridSize),
-            Mathf.RoundToInt(transform.position.z / _gridSize)
+            Mathf.RoundToInt(transform.position.x / GridBlockSize),
+            Mathf.RoundToInt(transform.position.z / GridBlockSize)
             );
     }
     #endregion

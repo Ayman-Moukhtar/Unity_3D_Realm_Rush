@@ -7,9 +7,6 @@ public class TowerController : MonoBehaviour
     private Transform _gun;
 
     [SerializeField]
-    private Transform _target;
-
-    [SerializeField]
     private int _attackRange = 30;
 
     // Update is called once per frame

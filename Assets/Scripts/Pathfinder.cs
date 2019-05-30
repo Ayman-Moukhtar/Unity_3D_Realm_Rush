@@ -2,13 +2,17 @@
 using System.Linq;
 using UnityEngine;
 
+public class BreadCrumbsTracker
+{
+    public Waypoint Point { get; set; }
+    public BreadCrumbsTracker LeadingPoint { get; set; }
+}
+
 public class Pathfinder : MonoBehaviour
 {
     [SerializeField]
     private Waypoint _start, _end;
 
-    private Dictionary<Vector2Int, Waypoint> _grid = new Dictionary<Vector2Int, Waypoint>();
-    private Queue<Waypoint> _queue = new Queue<Waypoint>();
     private List<Vector2Int> _directions = new List<Vector2Int>
     {
         Vector2Int.up,
@@ -16,90 +20,116 @@ public class Pathfinder : MonoBehaviour
         Vector2Int.down,
         Vector2Int.left
     };
-    private List<Waypoint> _cachedPath;
 
-    public List<Waypoint> GetPath()
+    public List<Waypoint> GetPath(EnemyController enemy, Vector2Int? startingPosition = null)
     {
-        if (_cachedPath != null)
+        var queue = new Queue<BreadCrumbsTracker>();
+        var explored = new HashSet<BreadCrumbsTracker>();
+        var blocks = GetWrappedBlocks();
+        var startWrapper = new BreadCrumbsTracker
         {
-            return _cachedPath;
-        }
+            Point = startingPosition != null
+            ? GetWaypointByPosition((Vector2Int)startingPosition, blocks)
+            : _start,
+            LeadingPoint = null
+        };
+        var endWrapper = new BreadCrumbsTracker { Point = _end, LeadingPoint = null };
+        BreadCrumbsTracker current = null;
+        queue.Enqueue(startWrapper);
 
-        LoadBlocks();
-
-        _queue.Enqueue(_start);
-        while (_queue.Any())
+        while (queue.Any())
         {
-            var current = _queue.Dequeue();
-            current.IsExplored = true;
+            current = queue.Dequeue();
+            explored.Add(current);
 
             // If reached destination
-            if (current == _end)
+            if (current.Point == endWrapper.Point)
             {
                 break;
             }
 
-            GetUnExploredNeighbors(current)
+            GetUnExploredNeighbors(current, explored, blocks)
                 .ForEach(_ =>
                 {
-                    if (!_queue.Contains(_))
+                    if (!queue.Contains(_))
                     {
-                        _queue.Enqueue(_);
+                        queue.Enqueue(_);
                     }
 
-                    _.LeadingWaypoint = current;
+                    _.LeadingPoint = current;
                 });
         }
 
-        var path = ConstructPathFromEnd(_end);
-        _cachedPath = path;
+        var path = ConstructPathFromLeadingPoints(startWrapper, current);
         return path;
     }
 
-    private List<Waypoint> ConstructPathFromEnd(Waypoint end)
+    private List<Waypoint> ConstructPathFromLeadingPoints(BreadCrumbsTracker start, BreadCrumbsTracker end)
     {
-        var backTracked = end;
-        var path = new List<Waypoint> { backTracked };
+        var tracker = end;
+        var path = new List<Waypoint> { tracker.Point };
 
-        while (backTracked.LeadingWaypoint)
+        while (tracker.LeadingPoint != null)
         {
-            path.Insert(0, backTracked.LeadingWaypoint);
-            backTracked = backTracked.LeadingWaypoint;
+            path.Insert(0, tracker.Point);
+            tracker = tracker.LeadingPoint;
         }
 
+        path.Insert(0, start.Point);
         return path;
     }
 
-    private List<Waypoint> GetUnExploredNeighbors(Waypoint waypoint)
+    private List<BreadCrumbsTracker> GetUnExploredNeighbors(
+        BreadCrumbsTracker waypoint, HashSet<BreadCrumbsTracker> alreadyExplored, Dictionary<Vector2Int, BreadCrumbsTracker> blocks
+        )
     {
-        return GetNeighbors(waypoint)
-            .Where(_ => !_.IsExplored)
+        return GetNeighbors(waypoint, blocks)
+            .Where(_ => !alreadyExplored.Contains(_) && !_.Point.IsBlocked)
             .ToList();
     }
 
-    private List<Waypoint> GetNeighbors(Waypoint waypoint)
+    private List<BreadCrumbsTracker> GetNeighbors(BreadCrumbsTracker waypoint, Dictionary<Vector2Int, BreadCrumbsTracker> blocks)
     {
-        var startPosition = waypoint.GetPositionInGrid();
+        var startPosition = waypoint.Point.GetPositionInGrid();
         return _directions
             // Filter in case the neighbor doesn't exist
             // This will happen if the waypoint is on the edge
-            .Where(_ => _grid.ContainsKey(_ + startPosition))
-            .Select(_ => _grid[_ + startPosition])
+            .Where(_ => blocks.ContainsKey(_ + startPosition))
+            .Select(_ => blocks[_ + startPosition])
             .ToList();
     }
 
-    private void LoadBlocks()
+    private Dictionary<Vector2Int, BreadCrumbsTracker> GetWrappedBlocks()
     {
+        var grid = new Dictionary<Vector2Int, BreadCrumbsTracker>();
+
         FindObjectsOfType<Waypoint>()
             .ToList()
             .ForEach(_ =>
             {
-                if (_grid.ContainsKey(_.GetPositionInGrid()))
+                if (grid.ContainsKey(_.GetPositionInGrid()))
                 {
                     Debug.LogWarning($"Skipping overlapping block {_}");
                     return;
                 }
-                _grid.Add(_.GetPositionInGrid(), _);
+                grid.Add(_.GetPositionInGrid(), new BreadCrumbsTracker { Point = _, LeadingPoint = null });
             });
+
+        return grid;
+    }
+
+    private Waypoint GetWaypointByPosition(Vector2Int position, Dictionary<Vector2Int, BreadCrumbsTracker> blocks)
+    {
+        var adjustedPosition = new Vector2Int(
+            position.x / Waypoint.GridBlockSize,
+            position.y / Waypoint.GridBlockSize
+            );
+
+        if (blocks.ContainsKey(adjustedPosition))
+        {
+            return blocks[adjustedPosition].Point;
+        }
+
+        return null;
     }
 }
