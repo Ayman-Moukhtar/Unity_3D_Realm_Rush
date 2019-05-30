@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 public class TowerController : MonoBehaviour
 {
@@ -19,12 +20,18 @@ public class TowerController : MonoBehaviour
 
     private void ProcessShooting()
     {
-        if (!_target || Vector3.Distance(transform.position, _target.position) > _attackRange)
+        var closest = FindObjectsOfType<EnemyCollisionHandler>()
+            .Select(_ => new { enemy = _.gameObject, distance = Vector3.Distance(transform.position, _.gameObject.transform.position) })
+            .Where(_ => _.distance <= _attackRange)
+            .OrderBy(_ => _.distance)
+            .FirstOrDefault();
+
+        if (closest == null)
         {
             DoShooting(false);
             return;
         }
-        _gun.LookAt(_target);
+        _gun.LookAt(closest.enemy.transform);
         DoShooting(true);
     }
 
