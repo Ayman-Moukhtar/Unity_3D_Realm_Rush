@@ -18,11 +18,6 @@ public class Pathfinder : MonoBehaviour
     };
     private List<Waypoint> _cachedPath;
 
-    private void Start()
-    {
-        ColorStartAndEnd();
-    }
-
     public List<Waypoint> GetPath()
     {
         if (_cachedPath != null)
@@ -91,12 +86,6 @@ public class Pathfinder : MonoBehaviour
             .Where(_ => _grid.ContainsKey(_ + startPosition))
             .Select(_ => _grid[_ + startPosition])
             .ToList();
-    }
-
-    private void ColorStartAndEnd()
-    {
-        _start.SetTopColor(Color.green);
-        _end.SetTopColor(Color.red);
     }
 
     private void LoadBlocks()

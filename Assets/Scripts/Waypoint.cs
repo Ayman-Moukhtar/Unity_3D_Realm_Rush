@@ -8,6 +8,11 @@ public class Waypoint : MonoBehaviour
     public bool IsExplored { get; set; } = false;
     public Waypoint LeadingWaypoint { get; set; }
 
+    private void OnMouseOver()
+    {
+
+    }
+
     #region Public Methods
     public Vector2Int GetPositionInGrid()
     {
@@ -15,11 +20,6 @@ public class Waypoint : MonoBehaviour
             Mathf.RoundToInt(transform.position.x / _gridSize),
             Mathf.RoundToInt(transform.position.z / _gridSize)
             );
-    }
-
-    public void SetTopColor(Color color)
-    {
-        transform.Find("Top").GetComponent<MeshRenderer>().material.color = color;
     }
     #endregion
 }
