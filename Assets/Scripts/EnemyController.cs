@@ -16,7 +16,7 @@ public class EnemyController : MonoBehaviour
     private void FollowPath(Vector2Int? startingPosition = null)
     {
         _coroutine = StartCoroutine(
-            DoFollowPath(_pathFinder.GetPath(this, startingPosition), startingPosition == null)
+            DoFollowPath(_pathFinder.GetPath(startingPosition), startingPosition == null)
             );
     }
 

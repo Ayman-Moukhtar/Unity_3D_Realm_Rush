@@ -21,7 +21,7 @@ public class Pathfinder : MonoBehaviour
         Vector2Int.left
     };
 
-    public List<Waypoint> GetPath(EnemyController enemy, Vector2Int? startingPosition = null)
+    public List<Waypoint> GetPath(Vector2Int? startingPosition = null)
     {
         var queue = new Queue<BreadCrumbsTracker>();
         var explored = new HashSet<BreadCrumbsTracker>();
