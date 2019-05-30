@@ -16,6 +16,7 @@ public class Pathfinder : MonoBehaviour
         Vector2Int.down,
         Vector2Int.left
     };
+    private List<Waypoint> _cachedPath;
 
     private void Start()
     {
@@ -24,12 +25,17 @@ public class Pathfinder : MonoBehaviour
 
     public List<Waypoint> GetPath()
     {
+        if (_cachedPath != null)
+        {
+            return _cachedPath;
+        }
+
         LoadBlocks();
-        var current = _start;
-        _queue.Enqueue(current);
+
+        _queue.Enqueue(_start);
         while (_queue.Any())
         {
-            current = _queue.Dequeue();
+            var current = _queue.Dequeue();
             current.IsExplored = true;
 
             // If reached destination
@@ -50,7 +56,9 @@ public class Pathfinder : MonoBehaviour
                 });
         }
 
-        return ConstructPathFromEnd(current);
+        var path = ConstructPathFromEnd(_end);
+        _cachedPath = path;
+        return path;
     }
 
     private List<Waypoint> ConstructPathFromEnd(Waypoint end)
