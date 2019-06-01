@@ -78,7 +78,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 748600753}
-  m_Text: 2,0
+  m_Text: 2,4
   m_OffsetZ: 0
   m_CharacterSize: 2
   m_LineSpacing: 1
@@ -245,6 +245,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa21803284980544387b3e2adb4de6b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _tower: {fileID: 1182819587098615291, guid: bcc2082ea51b74341aa459a2cb5896df, type: 3}
+  _towersContainer: {fileID: 0}
 --- !u!65 &481704668
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -265,10 +267,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1439593392610266662}
     m_Modifications:
-    - target: {fileID: 1457945536329988, guid: f27a4597efbf3694b95687e7aeef7fcc, type: 3}
-      propertyPath: m_Name
-      value: Block_Friendly
-      objectReference: {fileID: 0}
     - target: {fileID: 4501762900964862, guid: f27a4597efbf3694b95687e7aeef7fcc, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -324,6 +322,10 @@ PrefabInstance:
     - target: {fileID: 4501762900964862, guid: f27a4597efbf3694b95687e7aeef7fcc, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1457945536329988, guid: f27a4597efbf3694b95687e7aeef7fcc, type: 3}
+      propertyPath: m_Name
+      value: Block_Friendly
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f27a4597efbf3694b95687e7aeef7fcc, type: 3}
