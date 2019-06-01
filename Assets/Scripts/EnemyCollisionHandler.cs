@@ -9,8 +9,14 @@ public class EnemyCollisionHandler : MonoBehaviour
     private ParticleSystem _hitFx;
 
     [SerializeField]
-    private ParticleSystem _deathFx;
+    private AudioClip _enemyHitSfx;
 
+    private AudioSource _audio;
+
+    private void Start()
+    {
+        _audio = GetComponent<AudioSource>();
+    }
     private void OnParticleCollision(GameObject other)
     {
         ProcessHit();
@@ -22,15 +28,8 @@ public class EnemyCollisionHandler : MonoBehaviour
         _hitFx.Play();
         if (_hitPoints <= 0)
         {
-            Die();
+            GetComponent<EnemyController>().Die();
         }
-    }
-
-    private void Die()
-    {
-        var deathFx = Instantiate(_deathFx, transform.position, Quaternion.identity);
-        deathFx.Play();
-        Destroy(deathFx.gameObject, deathFx.main.duration);
-        Destroy(gameObject);
+        _audio.PlayOneShot(_enemyHitSfx);
     }
 }
