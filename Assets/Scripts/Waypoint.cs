@@ -2,12 +2,6 @@
 
 public class Waypoint : MonoBehaviour
 {
-    [SerializeField]
-    private TowerController _tower;
-
-    [SerializeField]
-    private Transform _towersContainer;
-
     public static int GridBlockSize => 10;
 
     public bool IsBlocked { get; set; }
@@ -21,8 +15,7 @@ public class Waypoint : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0)) // Left Click
         {
-            Instantiate(_tower, transform.position, Quaternion.identity, _towersContainer);
-            IsBlocked = true;
+            FindObjectOfType<TowerFactory>().AddTower(this);
         }
     }
 

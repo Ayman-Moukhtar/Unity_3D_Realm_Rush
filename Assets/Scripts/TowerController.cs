@@ -9,6 +9,8 @@ public class TowerController : MonoBehaviour
     [SerializeField]
     private int _attackRange = 30;
 
+    public Waypoint Waypoint { get; set; }
+
     // Update is called once per frame
     void Update()
     {

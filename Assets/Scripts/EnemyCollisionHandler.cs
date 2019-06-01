@@ -30,6 +30,7 @@ public class EnemyCollisionHandler : MonoBehaviour
     {
         var deathFx = Instantiate(_deathFx, transform.position, Quaternion.identity);
         deathFx.Play();
+        Destroy(deathFx.gameObject, deathFx.main.duration);
         Destroy(gameObject);
     }
 }
